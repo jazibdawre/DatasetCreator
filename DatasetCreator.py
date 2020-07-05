@@ -158,7 +158,6 @@ def fetch_img_urls(query, max_links, wd, sleep_prd=1) :
         log_run(f" [INFO] Thumbnails found: {len(img_thumbnails)}")
         
         img_urls = set()
-        img_ct = 0
 
         while len(img_thumbnails) < max_links:
             scroll_to_end(wd, sleep_prd)
@@ -166,11 +165,11 @@ def fetch_img_urls(query, max_links, wd, sleep_prd=1) :
             if(load_mor_bttn) :
                 wd.execute_script("document.querySelector('.mye4qd').click()")
                 log_run(" [INFO] Load more button clicked")
+                img_thumbnails = wd.find_elements_by_css_selector("img.Q4LuWd")
             else:
+                max_links = len(img_thumbnails)
                 break   #End of google page
-            img_thumbnails = wd.find_elements_by_css_selector("img.Q4LuWd")
-            log_run(f" [INFO] Thumbnails found: {len(img_thumbnails)}")
-
+        log_run(f" [INFO] Thumbnails found: {len(img_thumbnails)}")
 
         for img in img_thumbnails :
             try :
@@ -181,16 +180,18 @@ def fetch_img_urls(query, max_links, wd, sleep_prd=1) :
                     if(actual_img.get_attribute('src')) :
                         if actual_img.get_attribute('src')[:10] != "data:image":
                             img_urls.add(actual_img.get_attribute('src'))
-                            img_ct += 1
-                            print(f" Extracting image links: {img_ct}/{max_links}", end="\r")
-                if img_ct >= max_links:
-                    log_run(f" [INFO] Image links extracted: {img_ct}")
+                            print(f" Extracting image links: {len(img_urls)}/{max_links}", end="\r")
+                        if len(img_urls) >= max_links:
+                            break
+                if len(img_urls) >= max_links:
                     break
             except KeyboardInterrupt:
                 raise KeyboardInterrupt()
             except Exception as e:
                     log_err(f"[ERR] {e}\n")
                     err += 1
+
+        log_run(f" [INFO] Image links extracted: {len(img_urls)}")
     except KeyboardInterrupt:
         raise KeyboardInterrupt()
     except Exception as e:
@@ -336,17 +337,17 @@ def delete_duplicates(imagePaths):
                     log_err(f"[ERR] {e}\n")
                     err += 1
             if not tot:
-                print(" No duplicates found!")
+                print(" No duplicates found!", end="\r")
         except KeyboardInterrupt:
             raise KeyboardInterrupt()
         except Exception as e:
-            print(f"\n [ERR] {e}")
+            print(f"\n [ERR] {e}", end="\r")
             log_err(f"[ERR] [MAJOR] {e}\n\n")
         finally:
             log_run(f" [INFO] Duplicate images deleted")
             if err:
-                print(f"\n Images not deleted: {err}")
-            print("")
+                print(f"\n Images not deleted: {err}", end="\r")
+            print("\n")
     else:
         print(" Duplicate removal disabled. Skipping...\n")
 
