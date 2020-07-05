@@ -1,0 +1,18 @@
+{
+    "usage":"Do not remove/rename any of the fields, it will cause the script to crash. Only change the value of  the field",
+    "no_img":10,
+    "target_url": "https://www.google.com/search?safe=off&site=&tbm=isch&source=hp&q={query}&oq={query}&gs_l=img",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0",
+    "image_dimension": 416,
+    "image_distribution": "70/15/15",
+    "driver": "driver/geckodriver.exe",
+    "logging": true,
+    "download_images": true,
+    "remove_duplicate": true,
+    "clean_images": true,
+    "resize_images": true,
+    "mirror_images": true,
+    "move_images": true,
+    "rename_images": true,
+    "stealth": true
+}
