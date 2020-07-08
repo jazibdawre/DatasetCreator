@@ -527,10 +527,20 @@ def move_images(imagePaths, target_folder):
     else:
         print(" Image moving disabled. Skipping...\n")
 
-def rename_image_set(imagePaths, set_name, name):
+def rename_image_set(image_folder, set_name, name):
     err = 0
     try:
+        imagePaths = glob.glob(os.path.join(image_folder, "*.jpg"))
+        
         for index, imagePath in enumerate(imagePaths, start=1):
+            try:
+                os.rename(imagePath, os.path.join(os.path.dirname(imagePath), str(time.time())+'_('+str(index)+').jpg'))
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt()
+            except Exception as e:
+                log_err(f"[ERR] [in random naming] {e}\n")
+
+        for index, imagePath in enumerate(glob.glob(os.path.join(image_folder, "*.jpg")), start=1):
             try:
                 os.rename(imagePath, os.path.join(os.path.dirname(imagePath), name+'_('+str(index)+').jpg'))
                 print(f" Renaming Images{set_name}: {index}/{len(imagePaths)}", end="\r")
@@ -554,11 +564,11 @@ def rename_images(imagePaths, target_folder, name):
     if settings["rename_images"]:
         try:
             if not settings["move_images"]:
-                rename_image_set(imagePaths, "", name)
+                rename_image_set(target_folder, "", name)
             else:
-                rename_image_set(glob.glob(os.path.join(target_folder, 'valid', "*.jpg")), " in valid", name)
-                rename_image_set(glob.glob(os.path.join(target_folder, 'test', "*.jpg")), " in test", name)
-                rename_image_set(glob.glob(os.path.join(target_folder, 'train', "*.jpg")), " in train", name)
+                rename_image_set(os.path.join(target_folder, 'valid'), " in valid", name)
+                rename_image_set(os.path.join(target_folder, 'test'), " in test", name)
+                rename_image_set(os.path.join(target_folder, 'train'), " in train", name)
         except KeyboardInterrupt:
             raise KeyboardInterrupt()
         except Exception as e:
