@@ -64,12 +64,12 @@ settings = {    #These are defaults. Overriden by settings.json file
     "logging": True,
     "download_images": True,
     "remove_duplicate": True,
-    "clean_images": True,
+    "clean_images": False,
     "resize_images": True,
     "mirror_images": True,
     "move_images": True,
     "rename_images": True,
-    "label_images": True,
+    "label_images": False,
     "stealth": True
 }
 #================================================================================
@@ -112,16 +112,16 @@ def display_banner():
                              Dataset Creator v1.1.0
  ==============================================================================
  Github: github.com/jazibdawre/DatasetCreator                   GPL-3.0 License
- Author: Jazib Dawre <jazibdawre@gmail.com>                 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+ Author: Jazib Dawre <jazib980@gmail.com>                   {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
  ==============================================================================
 
  Current Preferences:
  Base Url :                      {settings["target_url"].split('search')[0]}
  User Agent :                    {(settings["user_agent"][:44] + '..') if len(settings["user_agent"]) > 46 else settings["user_agent"]}
- Stealth Mode :                  {"Yes" if settings["stealth"] else "No"}
- Runtime logging :               {"Yes" if settings["logging"] else "No"}
  No of Images :                  {settings["no_img"]}
  Image Size :                    {settings["image_dimension"]}x{settings["image_dimension"]}px
+ Stealth Mode :                  {"Yes" if settings["stealth"] else "No"}
+ Runtime logging :               {"Yes" if settings["logging"] else "No"}
  Download Images :               {"Yes" if settings["download_images"] else "No"}
  Remove Duplicates :             {"Yes" if settings["remove_duplicate"] else "No"}
  Clean Images :                  {"Yes" if settings["clean_images"] else "No"}
@@ -589,7 +589,10 @@ def label_image_set(target_folder, name):
         p = subprocess.run(["python", "labelImg.py", f"{target_folder}", f"{os.path.join(os.getcwd(), 'labelImg', 'data', 'predefined_classes.txt')}"], cwd="labelImg", stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines=True)
 
         if p.returncode != 0:
-            print(f"\n [WARN] Image labeller exited with error, status code: {p.returncode}")
+            if p.stderr.split('\n')[-2] == "ModuleNotFoundError: No module named 'libs.resources'":
+                print("\n [WARN] run 'pyrcc5 -o libs/resources.py resources.qrc' in labelImg directory")
+            else:
+                print(f"\n [WARN] Image labeller exited with error, status code: {p.returncode}")
         else:
             print(" Images labelled")
 
