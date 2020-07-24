@@ -3,10 +3,11 @@
 '''
     File name: DatasetCreator.py
     Author: Jazib Dawre <jazib980@gmail.com>
-    Version: 1.0.0
+    Version: 1.1.0
     Date created: 04/07/2020
     Description: Script for creating a dataset for AI, ML applications
     Python Version: >= 3.6.0 64-bit, <= 3.6.8 64-bit (Tested on 3.6.8 64-bit Windows)
+    Optional Repositories: https://github.com/GuillaumeErhard/ImageSetCleaner, https://github.com/tzutalin/labelImg
     License: GPL-3.0 License
 
     Copyright (C) 2020 Jazib Dawre
@@ -68,6 +69,7 @@ settings = {    #These are defaults. Overriden by settings.json file
     "mirror_images": True,
     "move_images": True,
     "rename_images": True,
+    "label_images": True,
     "stealth": True
 }
 #================================================================================
@@ -107,7 +109,7 @@ def read_settings():
 
 def display_banner():
     print(f"""
-                             Dataset Creator v1.0.0
+                             Dataset Creator v1.1.0
  ==============================================================================
  Github: github.com/jazibdawre/DatasetCreator                   GPL-3.0 License
  Author: Jazib Dawre <jazibdawre@gmail.com>                 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -116,17 +118,18 @@ def display_banner():
  Current Preferences:
  Base Url :                      {settings["target_url"].split('search')[0]}
  User Agent :                    {(settings["user_agent"][:44] + '..') if len(settings["user_agent"]) > 46 else settings["user_agent"]}
- Stealth Mode :                  {settings["stealth"]}
- Runtime logging :               {settings["logging"]}
+ Stealth Mode :                  {"Yes" if settings["stealth"] else "No"}
+ Runtime logging :               {"Yes" if settings["logging"] else "No"}
  No of Images :                  {settings["no_img"]}
  Image Size :                    {settings["image_dimension"]}x{settings["image_dimension"]}px
- Download Images :               {settings["download_images"]}
- Remove Duplicates :             {settings["remove_duplicate"]}
- Clean Images :                  {settings["clean_images"]}
- Resize Images :                 {settings["resize_images"]}
- Mirror Images :                 {settings["mirror_images"]}
- Move Images :                   {settings["move_images"]}
- Rename Images :                 {settings["rename_images"]}
+ Download Images :               {"Yes" if settings["download_images"] else "No"}
+ Remove Duplicates :             {"Yes" if settings["remove_duplicate"] else "No"}
+ Clean Images :                  {"Yes" if settings["clean_images"] else "No"}
+ Resize Images :                 {"Yes" if settings["resize_images"] else "No"}
+ Mirror Images :                 {"Yes" if settings["mirror_images"] else "No"}
+ Move Images :                   {"Yes" if settings["move_images"] else "No"}
+ Rename Images :                 {"Yes" if settings["rename_images"] else "No"}
+ Label Images :                  {"Yes" if settings["label_images"] else "No"}
 
  Preferences can be changed via the settings.json file
  """)
@@ -355,7 +358,7 @@ def clean_image(target_folder):
     if settings["clean_images"]:
         try:
             
-            print(" Starting Image cleaner GUI.\n Credits to GuillaumeErhard@github.com/GuillaumeErhard/ImageSetCleaner")    
+            print(" Starting Image cleaner GUI.\n Credits to Guillaume Erhard, github.com/GuillaumeErhard/ImageSetCleaner")    
             p = subprocess.run(["python", "image_set_cleaner.py", f"--image_dir={os.path.join('..', target_folder)}"], cwd="ImageSetCleaner", stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines=True)
 
             if p.returncode != 0:
@@ -576,6 +579,54 @@ def rename_images(imagePaths, target_folder, name):
             log_err(f"[ERR] [MAJOR] {e}\n\n")
     else:
         print(" Image renaming disabled. Skipping...")
+    print("")
+
+def label_image_set(target_folder, name):
+    try:
+        if name:
+            print(f"\n Labelling images{name}")
+
+        p = subprocess.run(["python", "labelImg.py", f"{target_folder}", f"{os.path.join(os.getcwd(), 'labelImg', 'data', 'predefined_classes.txt')}"], cwd="labelImg", stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines=True)
+
+        if p.returncode != 0:
+            print(f"\n [WARN] Image labeller exited with error, status code: {p.returncode}")
+        else:
+            print(" Images labelled")
+
+        if settings["logging"]:
+            if not os.path.exists(os.path.join('logs', 'run')) :
+                os.makedirs(os.path.join('logs', 'run'))
+            if not os.path.exists(os.path.join('logs', 'err')) :
+                os.makedirs(os.path.join('logs', 'err'))
+
+            with open(os.path.join('logs', 'run', 'imagelabeller.log'), 'a') as run_log, open(os.path.join('logs', 'err', 'imagelabeller.log'), 'a') as err_log:    
+                run_log.write(p.stdout)
+                err_log.write(p.stderr)
+    except KeyboardInterrupt:
+        raise KeyboardInterrupt()
+    except Exception as e:
+        print(f" [ERR] {e}")
+        log_err(f"[ERR] [MAJOR]{name} {e}\n\n")
+    finally:
+        log_run(f" [INFO] Images labelled{name}")
+
+def label_images(target_folder):
+    if settings["label_images"]:
+        try:
+            print(" Starting Image labeller GUI.\n Credits: Tzutalin,LabelImg-Git code(2015) https://github.com/tzutalin/labelImg")
+            if not settings["move_images"]:
+                label_image_set(target_folder, "")
+            else:
+                label_image_set(os.path.join(target_folder, 'valid'), " in valid")
+                label_image_set(os.path.join(target_folder, 'test'), " in test")
+                label_image_set(os.path.join(target_folder, 'train'), " in train")
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt()
+        except Exception as e:
+            print(f"\n [ERR] {e}")
+            log_err(f"[ERR] [MAJOR] {e}\n\n")
+    else:
+        print(" Image labelling disabled. Skipping...")
 
 def main():
     read_settings()
@@ -590,8 +641,10 @@ def main():
         mirror_images(glob.glob(os.path.join(target_folder, "*.jpg")))
         move_images(glob.glob(os.path.join(target_folder, "*.jpg")), target_folder)
         rename_images(glob.glob(os.path.join(target_folder, "*.jpg")), target_folder, keywords[0])
+        label_images(os.path.abspath(target_folder))
     else:
         print(" [WARN] No Images to process")
+        log_run(" [WARN] No Images to process")
 
 if __name__=='__main__':
     try:
