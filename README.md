@@ -53,39 +53,25 @@ On the prompt for search term, enter the word/sentence as you would in a search 
 
 ## Settings
 The settings can be changed via the settings.json file
-```
-"no_img"                The number of images to download (approximately)
 
-"target_url"            This is the base url
-
-"stealth"               When enabled the script will identify as the user-agent defined in the settings dictionary
-
-"user_agent"            We pretend to be this in stealth mode. Use any valid UA string you like
-
-"image_dimension"       Dimension of images in dataset if "resize_images" is True
-
-"image_distribution"    Ratio of images in train/valid/test set. ex: "70/15/15"
-
-"driver"                Path to the webdriver for the browser. ex: driver/geckodriver.exe for firefox
-
-"logging"               Enable logging of events and errors in log/run and log/err
-
-"download_images"       Weather to download images via browser.
-
-"remove_duplicate"      Delete duplicate images by phash algorithm
-
-"clean_images"          Use ImageSetCleaner by Guillaume Erhard to filter out bad images.    (optional)
-
-"resize_images"         resize images to image_dimension*image_dimension pixels
-
-"mirror_images"         mirror every image in the dataset.    (optional)
-
-"move_images"           distribute images in train/valid/test folder based on image_distribution value
-
-"rename_images"         rename images as 'first search term_(image_no)'.
-
-"label_images"         label images using labelImg by Tzutalin.    (optional)
-```
+|Setting               |Description                                                                               |
+|----------------------|------------------------------------------------------------------------------------------|
+|no_img                |The number of images to download (approximately)                                          |
+|target_url            |This is the base url                                                                      |
+|stealth               |Spoof the user-agent as defined in the settings dictionary                                |
+|user_agent            |UA to be used in stealth mode. Use any valid UA string you like                           |
+|image_dimension       |Dimension of images in dataset if "resize_images" is True                                 |
+|image_distribution    |Ratio of images in train/valid/test set. ex: "70/15/15"                                   |
+|driver                |Path to the webdriver for the browser. ex: driver/geckodriver.exe for firefox             |
+|logging               |Enable logging of events and errors in log/run and log/err                                |
+|download_images       |Weather to download images via browser.                                                   |
+|remove_duplicate      |Delete duplicate images by phash algorithm                                                |
+|clean_images          |Use ImageSetCleaner by Guillaume Erhard to filter out bad images.    (optional)           |
+|resize_images         |resize images to image_dimension*image_dimension pixels                                   |
+|mirror_images         |mirror every image in the dataset.    (optional)                                          |
+|move_images           |distribute images in train/valid/test folder based on image_distribution value            |
+|rename_images         |rename images as 'first search term_(image_no)'.                                          |
+|label_images          |label images using labelImg by Tzutalin.    (optional)                                    |
 
 ## Possible changes
 1. If you require images to be less than 300px, you can use Beautiful Soup instead of selenium for a much much faster execution. You need to change the code in 'fetch_img_urls' function.

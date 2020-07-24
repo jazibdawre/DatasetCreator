@@ -358,12 +358,12 @@ def clean_image(target_folder):
     if settings["clean_images"]:
         try:
             
-            print(" Starting Image cleaner GUI.\n Credits to Guillaume Erhard, github.com/GuillaumeErhard/ImageSetCleaner")    
+            print(" Starting Image cleaner GUI.\n Credits to Guillaume Erhard, https://github.com/GuillaumeErhard/ImageSetCleaner")    
             p = subprocess.run(["python", "image_set_cleaner.py", f"--image_dir={os.path.join('..', target_folder)}"], cwd="ImageSetCleaner", stdout = subprocess.PIPE, stderr = subprocess.PIPE, universal_newlines=True)
 
             if p.returncode != 0:
                 if p.stderr.split('\n')[-2] == "AssertionError: No outlier detected in the directory.":
-                    print("\n [INFO] No outliers detected")
+                    print("\n No outliers detected!")
                 else:
                     print("\n [WARN] Image cleaner exited with error")
             else:
