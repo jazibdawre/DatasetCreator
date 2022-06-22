@@ -10,7 +10,7 @@ importlib-metadata==1.7.0
 lxml==4.5.2
 Markdown==3.2.2
 matplotlib==2.0.2
-numpy==1.14.5
+numpy==1.22.0
 olefile==0.46
 Pillow==4.3.0
 protobuf==3.12.2
